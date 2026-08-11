@@ -61,6 +61,7 @@ export type SessionUser = {
   credits: number;
   planKey: string;
   homeCity: string;
+  role: string;
 };
 
 export async function getCurrentUser(): Promise<SessionUser | null> {
@@ -75,6 +76,7 @@ export async function getCurrentUser(): Promise<SessionUser | null> {
       credits: true,
       planKey: true,
       homeCity: true,
+      role: true,
     },
   });
   return user;

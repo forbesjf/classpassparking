@@ -19,6 +19,8 @@ export type GarageDTO = {
   amenities: string[];
   openHour: number;
   closeHour: number;
+  listed: boolean;
+  ownerId: string | null;
 };
 
 function toDTO(g: {
@@ -40,6 +42,8 @@ function toDTO(g: {
   amenities: string;
   openHour: number;
   closeHour: number;
+  listed: boolean;
+  ownerId: string | null;
 }): GarageDTO {
   return {
     ...g,
@@ -52,6 +56,7 @@ function toDTO(g: {
 
 export async function getGarages(): Promise<GarageDTO[]> {
   const garages = await prisma.garage.findMany({
+    where: { listed: true },
     orderBy: { rating: "desc" },
   });
   return garages.map(toDTO);
@@ -59,13 +64,22 @@ export async function getGarages(): Promise<GarageDTO[]> {
 
 export async function getGarageBySlug(slug: string): Promise<GarageDTO | null> {
   const garage = await prisma.garage.findUnique({ where: { slug } });
-  return garage ? toDTO(garage) : null;
+  return garage && garage.listed ? toDTO(garage) : null;
 }
 
 export async function getFeaturedGarages(limit = 3): Promise<GarageDTO[]> {
   const garages = await prisma.garage.findMany({
+    where: { listed: true },
     orderBy: { reviewCount: "desc" },
     take: limit,
+  });
+  return garages.map(toDTO);
+}
+
+export async function getGaragesByOwner(ownerId: string): Promise<GarageDTO[]> {
+  const garages = await prisma.garage.findMany({
+    where: { ownerId },
+    orderBy: { createdAt: "asc" },
   });
   return garages.map(toDTO);
 }

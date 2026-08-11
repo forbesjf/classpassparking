@@ -35,6 +35,7 @@ export default async function DashboardPage({
 }) {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
+  if (user.role === "OPERATOR") redirect("/operator");
 
   const [bookings, plan, transactions] = await Promise.all([
     prisma.booking.findMany({

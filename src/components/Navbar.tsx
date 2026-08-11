@@ -26,9 +26,14 @@ export default async function Navbar() {
           <Link href="/membership" className="btn-ghost">
             Membership
           </Link>
-          {user && (
+          {user && user.role !== "OPERATOR" && (
             <Link href="/dashboard" className="btn-ghost">
               Dashboard
+            </Link>
+          )}
+          {user?.role === "OPERATOR" && (
+            <Link href="/operator" className="btn-ghost">
+              Operator
             </Link>
           )}
         </nav>
@@ -36,15 +41,24 @@ export default async function Navbar() {
         <div className="flex items-center gap-2">
           {user ? (
             <>
+              {user.role === "OPERATOR" ? (
+                <span className="hidden items-center gap-1.5 rounded-full bg-ink-100 px-3 py-1.5 text-sm font-semibold text-ink-600 sm:inline-flex">
+                  Operator
+                </span>
+              ) : (
+                <Link
+                  href="/membership"
+                  className="hidden items-center gap-1.5 rounded-full bg-brand-50 px-3 py-1.5 text-sm font-semibold text-brand-700 hover:bg-brand-100 sm:inline-flex"
+                  title="Your credit balance"
+                >
+                  <CoinIcon className="h-4 w-4" />
+                  {formatCredits(user.credits)} credits
+                </Link>
+              )}
               <Link
-                href="/membership"
-                className="hidden items-center gap-1.5 rounded-full bg-brand-50 px-3 py-1.5 text-sm font-semibold text-brand-700 hover:bg-brand-100 sm:inline-flex"
-                title="Your credit balance"
+                href={user.role === "OPERATOR" ? "/operator" : "/dashboard"}
+                className="btn-secondary"
               >
-                <CoinIcon className="h-4 w-4" />
-                {formatCredits(user.credits)} credits
-              </Link>
-              <Link href="/dashboard" className="btn-secondary">
                 {user.name.split(" ")[0]}
               </Link>
               <span className="hidden sm:inline-flex">

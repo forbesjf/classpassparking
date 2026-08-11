@@ -309,33 +309,48 @@ async function main() {
   }
   console.log(`  ✓ ${plans.length} membership plans`);
 
-  // Garages
+  const passwordHash = await bcrypt.hash("password123", 10);
+
+  // Demo operator — owns the garages in the network.
+  const operator = await prisma.user.upsert({
+    where: { email: "operator@spotpass.app" },
+    update: { role: "OPERATOR" },
+    create: {
+      email: "operator@spotpass.app",
+      name: "Nadia Operator",
+      passwordHash,
+      role: "OPERATOR",
+      planKey: "free",
+      credits: 0,
+    },
+  });
+
+  // Garages — all assigned to the demo operator.
   for (const garage of garages) {
+    const data = { ...garage, ownerId: operator.id };
     await prisma.garage.upsert({
       where: { slug: garage.slug },
-      update: garage,
-      create: garage,
+      update: data,
+      create: data,
     });
   }
-  console.log(`  ✓ ${garages.length} garages`);
+  console.log(`  ✓ ${garages.length} garages (owned by operator@spotpass.app)`);
 
-  // Demo user
-  const demoEmail = "demo@spotpass.app";
-  const passwordHash = await bcrypt.hash("password123", 10);
+  // Demo driver
   const demo = await prisma.user.upsert({
-    where: { email: demoEmail },
-    update: {},
+    where: { email: "demo@spotpass.app" },
+    update: { role: "DRIVER" },
     create: {
-      email: demoEmail,
+      email: "demo@spotpass.app",
       name: "Demo Driver",
       passwordHash,
       credits: 300,
       planKey: "commuter",
       homeCity: "San Francisco",
+      role: "DRIVER",
     },
   });
 
-  // Give the demo user a starting transaction + one sample upcoming booking.
   const existingTx = await prisma.creditTransaction.count({
     where: { userId: demo.id },
   });
@@ -349,8 +364,43 @@ async function main() {
       },
     });
   }
+  console.log(`  ✓ demo driver (demo@spotpass.app / password123)`);
 
-  console.log(`  ✓ demo user (${demoEmail} / password123)`);
+  // Sample bookings so the operator dashboard shows real activity.
+  const existingBookings = await prisma.booking.count();
+  if (existingBookings === 0) {
+    const dbGarages = await prisma.garage.findMany();
+    const bySlug = (s: string) => dbGarages.find((g) => g.slug === s)!;
+    const hour = 60 * 60 * 1000;
+    const now = Date.now();
+    const samples = [
+      { slug: "embarcadero-center-garage", offsetH: -48, hours: 4, status: "COMPLETED" },
+      { slug: "union-square-garage", offsetH: -26, hours: 3, status: "COMPLETED" },
+      { slug: "soma-tech-garage", offsetH: -20, hours: 8, status: "COMPLETED" },
+      { slug: "embarcadero-center-garage", offsetH: -2, hours: 6, status: "ACTIVE" },
+      { slug: "hayes-valley-garage", offsetH: 5, hours: 2, status: "CONFIRMED" },
+      { slug: "soma-tech-garage", offsetH: 22, hours: 3, status: "CONFIRMED" },
+    ];
+    for (const s of samples) {
+      const g = bySlug(s.slug);
+      const start = new Date(now + s.offsetH * hour);
+      await prisma.booking.create({
+        data: {
+          userId: demo.id,
+          garageId: g.id,
+          startTime: start,
+          endTime: new Date(start.getTime() + s.hours * hour),
+          hours: s.hours,
+          creditsCost: g.creditsPerHour * s.hours,
+          status: s.status,
+          vehiclePlate: "7XYZ890",
+          checkedInAt: s.status === "ACTIVE" ? start : null,
+        },
+      });
+    }
+    console.log(`  ✓ ${samples.length} sample bookings`);
+  }
+
   console.log("Done.");
 }
 

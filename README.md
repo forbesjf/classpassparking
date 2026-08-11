@@ -11,7 +11,10 @@ This is a full-stack demo app built with the Next.js App Router.
 
 ---
 
-## Features
+SpotPass is a two-sided marketplace: **drivers** find and book parking with a
+subscription, and **garage operators** list and manage their facilities.
+
+### For drivers
 
 - 🔎 **Explore** — browse the garage network on a live, interactive map with
   search, sorting (price / availability / distance), and amenity filters.
@@ -24,8 +27,20 @@ This is a full-stack demo app built with the Next.js App Router.
   credit-activity ledger.
 - 🎟️ **Membership tiers** — Pay As You Go, Starter, Commuter, and All-Access,
   each granting monthly credits. Switch plans anytime.
-- 🔐 **Auth** — email/password accounts with JWT session cookies. New members
-  get 40 welcome credits.
+
+### For operators
+
+- 🏢 **Operator console** — network-wide occupancy, active sessions, upcoming
+  bookings, and credits earned at a glance.
+- 🛠️ **Garage management** — add, edit, and list/unlist garages (pricing,
+  capacity, amenities, hours, location, card color).
+- 🧾 **Per-garage bookings** — occupancy, revenue, and a full booking table
+  for each facility.
+
+### Shared
+
+- 🔐 **Auth** — email/password accounts with JWT session cookies and a
+  `DRIVER` / `OPERATOR` role. New members get 40 welcome credits.
 
 ## Tech stack
 
@@ -55,14 +70,21 @@ Or reset the database to a clean seeded state at any time:
 npm run db:reset
 ```
 
-### Demo account
+### Demo accounts
+
+Driver (Commuter plan, 300 credits):
 
 ```
 email:    demo@spotpass.app
 password: password123
 ```
 
-The demo user is on the **Commuter** plan with 300 credits.
+Operator (owns the seeded garage network):
+
+```
+email:    operator@spotpass.app
+password: password123
+```
 
 ## Environment
 
@@ -90,15 +112,18 @@ src/
     page.tsx           # landing
     explore/           # map + list of garages
     garage/[slug]/     # garage detail + booking
-    dashboard/         # bookings, credits, activity
+    dashboard/         # driver bookings, credits, activity
     membership/        # plans + FAQ
+    operator/          # operator console, garage management, per-garage view
     login/ register/   # auth pages
     api/
       auth/            # register / login / logout
       bookings/        # create booking + PATCH actions
       membership/      # change plan
+      operator/        # create / update garages (operator-only)
   components/          # UI (Navbar, GarageCard, CityMap, BookingForm, …)
-  lib/                 # db, auth, garages, formatting helpers
+    operator/          # GarageForm, ListedToggle, OperatorTabs
+  lib/                 # db, auth, garages, operator, formatting helpers
 ```
 
 ## How credits work

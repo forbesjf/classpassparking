@@ -35,7 +35,7 @@ export default function AuthForm({ mode }: { mode: "login" | "register" }) {
         setLoading(false);
         return;
       }
-      router.push("/dashboard");
+      router.push(data.role === "OPERATOR" ? "/operator" : "/dashboard");
       router.refresh();
     } catch {
       setError("Network error — please try again");

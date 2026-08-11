@@ -18,10 +18,12 @@ model User {
   credits      Int      @default(0) // current credit balance
   planKey      String   @default("free") // references Plan.key
   homeCity     String   @default("San Francisco")
+  role         String   @default("DRIVER") // DRIVER | OPERATOR
   createdAt    DateTime @default(now())
 
   bookings     Booking[]
   transactions CreditTransaction[]
+  ownedGarages Garage[] @relation("GarageOwner")
 }
 
 model Plan {
@@ -54,9 +56,14 @@ model Garage {
   amenities      String // comma-separated tags
   openHour       Int      @default(0) // 0-24
   closeHour      Int      @default(24) // 24 == open all day
+  listed         Boolean  @default(true) // visible/bookable in the network
+  ownerId        String?
   createdAt      DateTime @default(now())
 
+  owner    User?     @relation("GarageOwner", fields: [ownerId], references: [id])
   bookings Booking[]
+
+  @@index([ownerId])
 }
 
 model Booking {
