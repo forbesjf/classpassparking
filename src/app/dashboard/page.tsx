@@ -74,7 +74,9 @@ export default async function DashboardPage({
             <h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl">
               Hi, {user.name.split(" ")[0]} 👋
             </h1>
-            <p className="mt-1 text-ink-500">Here's your parking at a glance.</p>
+            <p className="mt-1 text-ink-500">
+              Here&apos;s your parking at a glance.
+            </p>
           </div>
           <Link href="/explore" className="btn-primary">
             Book parking
