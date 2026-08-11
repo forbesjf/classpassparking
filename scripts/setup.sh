@@ -17,13 +17,16 @@ fi
 echo "→ Generating Prisma client…"
 npx prisma generate >/dev/null
 
-if [ ! -f prisma/dev.db ]; then
-  echo "→ Creating and seeding database…"
-  npx prisma db push --skip-generate >/dev/null
-  npm run db:seed
+# Sync the schema to Postgres if one is reachable. This is best-effort so the
+# script (and the SessionStart hook) still succeed when no database is running
+# — e.g. a fresh web session before `docker compose up -d`.
+echo "→ Syncing database schema…"
+if npx prisma db push --skip-generate >/dev/null 2>&1; then
+  # The seed is idempotent (upserts), so it is safe to run every time.
+  npm run db:seed || echo "  (seed skipped)"
+  echo "✓ SpotPass is ready. Run 'npm run dev' to start."
 else
-  # Make sure the schema is applied even if the db already exists.
-  npx prisma db push --skip-generate >/dev/null
+  echo "⚠ No Postgres reachable at DATABASE_URL yet."
+  echo "  Start one with 'docker compose up -d', then run:"
+  echo "  npm run db:push && npm run db:seed"
 fi
-
-echo "✓ SpotPass is ready. Run 'npm run dev' to start."

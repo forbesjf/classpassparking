@@ -1,0 +1,23 @@
+# Local Postgres for development. Start with:  docker compose up -d
+# The default DATABASE_URL in .env.example points at this container.
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: spotpass-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: spotpass
+      POSTGRES_PASSWORD: spotpass
+      POSTGRES_DB: spotpass
+    ports:
+      - "5432:5432"
+    volumes:
+      - spotpass-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U spotpass -d spotpass"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  spotpass-pgdata:

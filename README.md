@@ -50,7 +50,7 @@ subscription, and **garage operators** list and manage their facilities.
 | --------- | --------------------------------------- |
 | Framework | Next.js 14 (App Router) + TypeScript    |
 | Styling   | Tailwind CSS                            |
-| Database  | SQLite via Prisma ORM                   |
+| Database  | PostgreSQL via Prisma ORM               |
 | Auth      | `jose` (JWT) + `bcryptjs`, httpOnly cookie |
 | Validation| Zod                                     |
 
@@ -59,14 +59,21 @@ latitude/longitude — no external map tiles required.
 
 ## Getting started
 
+You need a PostgreSQL database. The quickest local option is the bundled
+`docker-compose.yml`:
+
 ```bash
-npm install          # install dependencies (also runs `prisma generate`)
-npm run db:push      # create the SQLite database from the schema
-npm run db:seed      # load membership plans, 12 garages, and a demo user
-npm run dev          # start the dev server at http://localhost:3000
+docker compose up -d   # start Postgres (matches the default DATABASE_URL)
+npm install            # install dependencies (also runs `prisma generate`)
+npm run db:push        # create tables from the schema
+npm run db:seed        # load plans, 12 garages, and demo users
+npm run dev            # start the dev server at http://localhost:3000
 ```
 
-Or reset the database to a clean seeded state at any time:
+No Docker? Point `DATABASE_URL` at any Postgres (including a free
+[Neon](https://neon.tech) database) and run the same `db:push` / `db:seed`.
+
+Reset the database to a clean seeded state at any time:
 
 ```bash
 npm run db:reset
@@ -97,11 +104,17 @@ cp .env.example .env
 ```
 
 ```
-DATABASE_URL="file:./dev.db"
+DATABASE_URL="postgresql://spotpass:spotpass@localhost:5432/spotpass?schema=public"
 AUTH_SECRET="<a long random string>"
 ```
 
-> Replace `AUTH_SECRET` with a strong random value before deploying.
+> Replace `AUTH_SECRET` with a strong random value before deploying
+> (e.g. `openssl rand -hex 32`).
+
+## Deployment
+
+SpotPass deploys to **Vercel** with a **Neon** Postgres database.
+See **[DEPLOY.md](./DEPLOY.md)** for step-by-step instructions.
 
 ## Project structure
 
