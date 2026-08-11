@@ -61,6 +61,39 @@ That's it — visit the URL and log in with `demo@spotpass.app` /
 
 ---
 
+## Use your Squarespace domain
+
+You can't host this app on Squarespace itself (it only runs Squarespace-built
+sites), but if you registered a domain there you can point it at your Vercel
+deployment so the app lives at `yourname.com`.
+
+1. **Deploy to Vercel first** (steps above) so you have a working
+   `…vercel.app` URL.
+2. In **Vercel** → Project → **Settings → Domains**, add your domain — enter
+   both `yourname.com` and `www.yourname.com`. Vercel shows the exact DNS
+   records it wants.
+3. In **Squarespace** → **Settings → Domains** → click your domain →
+   **DNS Settings** (Custom Records), add:
+
+   | Type  | Host   | Value                    |
+   | ----- | ------ | ------------------------ |
+   | A     | `@`    | `76.76.21.21`            |
+   | CNAME | `www`  | `cname.vercel-dns.com`   |
+
+   > Use the exact values Vercel displays — they can differ per project. If
+   > Squarespace already has conflicting `A`/`CNAME` records for `@` or `www`
+   > (from a Squarespace site), remove or replace them.
+4. Back in Vercel, wait for the domain to verify (DNS can take minutes to a few
+   hours). Vercel then issues an HTTPS certificate automatically.
+
+That's it — your SpotPass deployment is now served from your own domain.
+
+> Domain forwarding (Squarespace's "point to an external URL" option) is **not**
+> a good fit here — it redirects and can break paths and HTTPS. Use the DNS
+> records above instead.
+
+---
+
 ## Notes & tips
 
 - **Every push auto-deploys.** Once connected, Vercel builds and deploys each
