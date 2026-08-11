@@ -27,6 +27,8 @@ subscription, and **garage operators** list and manage their facilities.
   credit-activity ledger.
 - 🎟️ **Membership tiers** — Pay As You Go, Starter, Commuter, and All-Access,
   each granting monthly credits. Switch plans anytime.
+- 🛒 **Buy credits** — one-time top-up packs (with per-credit bulk discounts)
+  via a demo checkout. Credit amounts and prices are validated server-side.
 
 ### For operators
 
@@ -114,12 +116,14 @@ src/
     garage/[slug]/     # garage detail + booking
     dashboard/         # driver bookings, credits, activity
     membership/        # plans + FAQ
+    credits/           # buy one-time credit packs (demo checkout)
     operator/          # operator console, garage management, per-garage view
     login/ register/   # auth pages
     api/
       auth/            # register / login / logout
       bookings/        # create booking + PATCH actions
       membership/      # change plan
+      credits/         # purchase credit packs
       operator/        # create / update garages (operator-only)
   components/          # UI (Navbar, GarageCard, CityMap, BookingForm, …)
     operator/          # GarageForm, ListedToggle, OperatorTabs

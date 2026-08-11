@@ -31,7 +31,7 @@ export const metadata = { title: "Dashboard · SpotPass" };
 export default async function DashboardPage({
   searchParams,
 }: {
-  searchParams: { booked?: string };
+  searchParams: { booked?: string; purchased?: string };
 }) {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
@@ -96,6 +96,18 @@ export default async function DashboardPage({
           </div>
         )}
 
+        {searchParams.purchased && (
+          <div className="mt-6 flex items-center gap-3 rounded-2xl border border-brand-200 bg-brand-50 px-4 py-3 text-brand-800">
+            <span className="grid h-8 w-8 place-items-center rounded-full bg-brand-600 text-white">
+              <CoinIcon className="h-5 w-5" />
+            </span>
+            <p className="text-sm font-semibold">
+              {searchParams.purchased} credits added to your balance. Happy
+              parking!
+            </p>
+          </div>
+        )}
+
         {/* Stat cards */}
         <div className="mt-6 grid gap-4 sm:grid-cols-3">
           <div className="card p-5">
@@ -107,10 +119,10 @@ export default async function DashboardPage({
               {formatCredits(user.credits)}
             </p>
             <Link
-              href="/membership"
+              href="/credits"
               className="mt-1 inline-block text-sm font-semibold text-brand-700 hover:text-brand-800"
             >
-              Add credits →
+              Buy credits →
             </Link>
           </div>
           <div className="card p-5">

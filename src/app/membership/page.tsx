@@ -1,3 +1,4 @@
+import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import PlanCard, { type PlanView } from "@/components/PlanCard";
@@ -65,6 +66,17 @@ export default async function MembershipPage() {
                 {planViews.find((p) => p.key === user.planKey)?.name}
               </span>{" "}
               plan
+            </p>
+          )}
+          {user && user.role !== "OPERATOR" && (
+            <p className="mt-3 text-sm text-ink-500">
+              Just need a one-time boost?{" "}
+              <Link
+                href="/credits"
+                className="font-semibold text-brand-700 hover:text-brand-800"
+              >
+                Buy a credit pack →
+              </Link>
             </p>
           )}
         </div>

@@ -197,8 +197,8 @@ export default function BookingForm({
           <p className="mb-2 text-center text-sm text-red-600">
             You need {cost - userCredits} more credits for this booking.
           </p>
-          <Link href="/membership" className="btn-secondary w-full">
-            Get more credits
+          <Link href="/credits" className="btn-secondary w-full">
+            Buy more credits
           </Link>
         </div>
       )}

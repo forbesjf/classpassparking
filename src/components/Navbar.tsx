@@ -47,9 +47,9 @@ export default async function Navbar() {
                 </span>
               ) : (
                 <Link
-                  href="/membership"
+                  href="/credits"
                   className="hidden items-center gap-1.5 rounded-full bg-brand-50 px-3 py-1.5 text-sm font-semibold text-brand-700 hover:bg-brand-100 sm:inline-flex"
-                  title="Your credit balance"
+                  title="Your credit balance — tap to buy more"
                 >
                   <CoinIcon className="h-4 w-4" />
                   {formatCredits(user.credits)} credits
