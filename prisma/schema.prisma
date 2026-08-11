@@ -1,0 +1,101 @@
+// SpotPass — data model
+// A ClassPass-style credits marketplace for parking garages.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String
+  passwordHash String
+  credits      Int      @default(0) // current credit balance
+  planKey      String   @default("free") // references Plan.key
+  homeCity     String   @default("San Francisco")
+  role         String   @default("DRIVER") // DRIVER | OPERATOR
+  createdAt    DateTime @default(now())
+
+  bookings     Booking[]
+  transactions CreditTransaction[]
+  ownedGarages Garage[] @relation("GarageOwner")
+}
+
+model Plan {
+  key            String  @id // "free" | "starter" | "commuter" | "unlimited"
+  name           String
+  monthlyCredits Int
+  priceCents     Int
+  tagline        String
+  features       String // JSON array of strings
+  highlight      Boolean @default(false)
+  sortOrder      Int     @default(0)
+}
+
+model Garage {
+  id             String   @id @default(cuid())
+  slug           String   @unique
+  name           String
+  address        String
+  neighborhood   String
+  city           String   @default("San Francisco")
+  lat            Float
+  lng            Float
+  creditsPerHour Int
+  capacity       Int
+  spotsAvailable Int
+  rating         Float    @default(4.5)
+  reviewCount    Int      @default(0)
+  accent         String   @default("#17b478") // card accent color
+  description    String
+  amenities      String // comma-separated tags
+  openHour       Int      @default(0) // 0-24
+  closeHour      Int      @default(24) // 24 == open all day
+  listed         Boolean  @default(true) // visible/bookable in the network
+  ownerId        String?
+  createdAt      DateTime @default(now())
+
+  owner    User?     @relation("GarageOwner", fields: [ownerId], references: [id])
+  bookings Booking[]
+
+  @@index([ownerId])
+}
+
+model Booking {
+  id          String   @id @default(cuid())
+  userId      String
+  garageId    String
+  startTime   DateTime
+  endTime     DateTime
+  hours       Int
+  creditsCost Int
+  status      String   @default("CONFIRMED") // CONFIRMED | ACTIVE | COMPLETED | CANCELLED
+  vehiclePlate String  @default("")
+  checkedInAt DateTime?
+  createdAt   DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  garage Garage @relation(fields: [garageId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([garageId])
+}
+
+model CreditTransaction {
+  id          String   @id @default(cuid())
+  userId      String
+  amount      Int // positive = granted, negative = spent
+  type        String // SIGNUP_BONUS | ALLOWANCE | BOOKING | REFUND | PLAN_CHANGE
+  description String
+  bookingId   String?
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
